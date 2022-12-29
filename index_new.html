@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Watch</title>
+  
+  <!-- Importing CSS -->
+  <link rel="stylesheet" href="index.css">
+
+  <!-- Importing Bootstrap 5-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  
+  <!-- Importing Feather Icons-->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- Importing PyScript-->
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+</head>
+<body>
+  <py-config>
+    packages = [
+      "folium",
+      "pandas",
+      "geopandas"
+    ]
+
+    [[runtimes]]
+    src = "./static/pyodide-0.22.0a3-core-ww/pyodide.js"
+    name = "pyodide-0.22.0a3"
+    lang = "python"
+    
+    [[fetch]]
+    from = "./static/boundaries/"
+    files = ["boundaries.geojson"]
+
+    [[fetch]]
+    from = "./code/"
+    files =["data.py", "map_styles.py", "location.py", "requests.py"]
+  </py-config>
+
+  <!-- Keep track of current page -->
+  <span id="current-page" class="home"></span>
+
+  <!-- Navbar -->
+  <header>
+    <nav class="navbar navbar-dark bg-dark sticky-top px-3 py-1 shadow" data-bs-theme="dark">
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 fs-5 px-3" href="#">Weather Watch</a>
+      <button class="navbar-toggler fs-6 px-3" type="button" py-click="toggle_element_display('terminal')" id="terminal-toggle">Debug</button>    
+    </nav>
+  </header>
+  
+  <!-- Sidebar -->
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky pt-3 sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#home" py-click="navigate_to_page('home')" id="home_button">
+                <span data-feather="home" class="align-text-bottom"></span>
+                Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#alerts" py-click="navigate_to_page('alerts')" id="alerts_button">
+                <span data-feather="alert-triangle" class="align-text-bottom"></span>
+                Alerts
+              </a>
+            </li> 
+            <li class="nav-item">
+              <a class="nav-link" href="#map" py-click="navigate_to_page('map')" id="map_button">
+                <span data-feather="map-pin" class="align-text-bottom"></span>
+                Map
+              </a>
+            </li>             
+            <li class="nav-item">
+              <a class="nav-link" href="#settings" py-click="navigate_to_page('settings')" id="settings_button">
+                <span data-feather="settings" class="align-text-bottom"></span>
+                Settings
+              </a>
+            </li>
+          </ul>
+
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Reports</span>
+          </h6>
+          <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <span data-feather="file-text" class="align-text-bottom"></span>
+                Snow
+              </a>
+            </li>
+          </ul>
+
+          <h6 class="sidebar-heading d-flex justify-content-center align-items-center mt-5 mb-0 text-muted text-uppercase">
+            Last Update:<br>
+          </h6>
+          <h6 class="sidebar-heading d-flex justify-content-center align-items-center mt-0 mb-2 text-muted text-uppercase">
+            12/28/2022 09:35AM<br>
+          </h6>
+          <ul class="nav nav-fill flex-column mb-2">
+            <li class="nav-item">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh_button" py-click="refresh_data(CITIES, JSONS_PATH)">
+              <span data-feather="refresh-cw"></span> Refresh</button>
+            </li>
+          </ul>
+
+          <div class="progress" role="progressbar" id="refresh_progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 20%"></div>
+          </div>
+
+        </div>
+      </nav>
+
+    <!-- Home Page -->
+    <main id="home" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <!-- Section Header -->
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Home</h1>
+      </div>
+      <!-- Content -->
+      <h3> Test for content </h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+      <div class="container-flex">
+        <div class="row">
+          <div class="card col-md-3 col-lg-3 text-bg-primary m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Primary card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          
+          <div class="card col-md-3 col-lg-3 text-bg-secondary m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Secondary card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+
+          <div class="card col-md-3 col-lg-3 text-bg-success m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Success card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          <div class="card col-md-3 col-lg-3 text-bg-danger m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Danger card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          <div class="card col-md-3 col-lg-3 text-bg-warning m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Warning card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          <div class="card col-md-3 col-lg-3 text-bg-info m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Info card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          <div class="card col-md-3 col-lg-3 text-bg-light m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Light card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+          <div class="card col-md-3 col-lg-3 text-bg-dark m-2" style="max-width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Dark card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+    </main>    
+
+    <!-- Alerts Page -->
+    <main id="alerts" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 d-none">
+      <!-- Section Header -->
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Alerts</h1>
+      </div>
+      <!-- Content -->
+      <h3> I have changed </h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </main>   
+    
+    <!-- Map Page -->
+    <main id="map" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 d-none">
+      <!-- Section Header -->
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Map</h1>
+      </div>
+      <!-- Content -->
+      <div id="folium"></div>
+    </main>    
+    
+    <!-- Settings Page -->
+    <main id="settings" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 d-none">
+      <!-- Section Header -->
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Settings</h1>
+      </div>
+      <!-- Content -->
+      <h3> List of towns to scrape: </h3>
+      <div id="cities-table"></div>
+    </main>
+
+  </div>
+
+  <footer id="terminal" class="d-none">
+    <nav class="navbar bg-info fixed-bottom">
+      <div class="container-fluid">
+        <ul class="navbar-nav navbar-nav-scroll" style="--bs-scroll-height: 50vh;">
+          <li class="nav-item">
+            <py-repl id="my-repl" auto-generate="true"> </py-repl>
+            <py-terminal></py-terminal>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </footer>
+
+  <py-script src="code/navigation_utils.py">
+  </py-script>
+
+  <py-script src="code/main.py">
+  </py-script>
+
+  <script>
+    feather.replace()
+  </script>
+</body>
+</html>
